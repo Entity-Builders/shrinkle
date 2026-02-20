@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 1080" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGradient" gradientTransform="rotate(90)">
+      <stop offset="0%" stop-color="#87CEFA" />  <stop offset="100%" stop-color="#4169E1" /> </linearGradient>
+    <filter id="blur">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="10" />
+    </filter>
+  </defs>
+  
+  <rect width="100%" height="100%" fill="url(#bgGradient)" />
+  
+  <path 
+    d="M0 200 C 200 0, 500 400, 800 200 S 1200 500, 1440 200 L 1440 1080 L 0 1080 Z"
+    fill="rgba(255,255,255,0.2)" 
+    filter="url(#blur)"
+  />
+  <path 
+    d="M0 800 C 300 400, 700 900, 1000 500 S 1300 1000, 1440 800 L 1440 1080 L 0 1080 Z"
+    fill="rgba(255,255,255,0.2)" 
+    filter="url(#blur)" 
+  />
+
+  <g filter="url(#blur)"> 
+    <path d="M100 80 C 280 20, 320 200, 400 80" fill="rgba(255,255,255,0.3)" />
+    <path d="M500 320 C 680 220, 720 440, 800 320" fill="rgba(255,255,255,0.3)" />
+    <path d="M900 160 C 1080 60, 1120 280, 1200 160" fill="rgba(255,255,255,0.3)" />
+    <path d="M100 600 C 280 500, 320 720, 400 600" fill="rgba(255,255,255,0.3)" />
+    <path d="M500 840 C 680 740, 720 960, 800 840" fill="rgba(255,255,255,0.3)" />
+    <path d="M900 680 C 1080 580, 1120 800, 1200 680" fill="rgba(255,255,255,0.3)" />
+  </g>
+</svg>
