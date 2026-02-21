@@ -1,5 +1,5 @@
 import { useCallback, useContext, useState } from 'react';
-import { CREATE_SHORT_URL, ENDPOINT_BE_REDIRECT } from '../../constants';
+import { REDIRECT_BASE_URL } from '../../constants';
 import { cleanUrl } from '../../utils';
 import { useSpring } from '@react-spring/web';
 import uniqolor from 'uniqolor';
@@ -11,15 +11,21 @@ import {
   Input,
   FormContainer,
 } from './styles';
-import { UrlItem } from '../../types';
 import { debounce } from 'lodash';
+import { supabase } from '../../supabase';
+import { init } from '@paralleldrive/cuid2';
+
+const createId = init({
+  random: Math.random,
+  length: 5,
+  fingerprint: 'shrinkle-url-shortener',
+});
 
 const isValidUrl = (
   urlString: string,
-  allowedProtocols: string[] = ['http:', 'https:']
+  allowedProtocols: string[] = ['http:', 'https:'],
 ) => {
   try {
-    // If no protocol is provided, assume 'https://'
     if (!urlString.startsWith('http://') && !urlString.startsWith('https://')) {
       urlString = 'https://' + urlString;
     }
@@ -40,56 +46,62 @@ const useForm = () => {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setIsLoading(true);
-    setError(''); // Clear any previous errors
+    setError('');
 
     try {
-      // Normalize and clean the URL upfront
       const cleanedUrl = cleanUrl(
         longUrl.startsWith('http://') || longUrl.startsWith('https://')
           ? longUrl
-          : `http://${longUrl}`
+          : `http://${longUrl}`,
       );
 
       const isValid = isValidUrl(cleanedUrl);
-      console.log('$$$ isValid:', isValid);
       if (!isValid) {
-        alert();
+        setError('Please enter a valid URL');
         return;
       }
 
-      const response = await fetch(CREATE_SHORT_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ longUrl: cleanedUrl }),
-      });
+      const shortCode = createId();
 
-      if (response.ok) {
-        const { data }: { data: UrlItem } = await response.json();
-        const shortUrl = `${ENDPOINT_BE_REDIRECT}/${data.shortCode}`; // No need for optional chaining if response is ok
+      // Insert directly into Supabase
+      const { data, error: supabaseError } = await supabase
+        .from('short_urls')
+        .insert({
+          original_url: cleanedUrl,
+          short_code: shortCode,
+        })
+        .select()
+        .single();
 
-        // Consider using a more descriptive function name than 'saveUrlItem' if possible
-        saveUrlItem({ ...data, shortUrl });
-        setLongUrl(''); // Clear the input field
-      } else {
-        // Handle specific error responses from the API if possible
-        const errorData = await response.json();
+      if (supabaseError) {
         setError(
-          errorData.error || 'An error occurred while shortening the URL'
+          supabaseError.message || 'An error occurred while shortening the URL',
         );
+        return;
+      }
+
+      if (data) {
+        const shortUrl = `${REDIRECT_BASE_URL}/${data.short_code}`;
+        saveUrlItem({
+          originalUrl: data.original_url,
+          shortCode: data.short_code,
+          shortUrl,
+        });
+        setLongUrl('');
       }
     } catch (error) {
-      console.error('Network error:', error);
+      console.error('Error:', error);
       setError(
-        'A network error occurred. Please check your connection and try again.'
+        'A network error occurred. Please check your connection and try again.',
       );
-      setLongUrl(''); // Clear the input field even on network errors
+      setLongUrl('');
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setLongUrl(event.target.value); // Update inputValue whenever the input changes
+    setLongUrl(event.target.value);
   };
 
   return {
@@ -122,12 +134,12 @@ export const Form = () => {
     config: {
       duration: 1000,
     },
-    loop: true, // Use the loop prop for continuous animation
+    loop: true,
   });
 
   const handleButtonClick = useCallback(
     () => debounce(handleSubmit, 1000),
-    [handleSubmit]
+    [handleSubmit],
   );
 
   return (

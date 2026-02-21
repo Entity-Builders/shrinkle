@@ -1,43 +1,39 @@
-import { useParams, useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
-import { GET_SHORT_URL } from './constants';
+import { useParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { EDGE_FUNCTION_REDIRECT } from './constants';
 
 const RedirectComponent = () => {
-  const { shortCode } = useParams(); // Get the short code from the URL
-  const navigate = useNavigate();
+  const { shortCode } = useParams();
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    console.log('$$$ GET_SHORT_URL:', GET_SHORT_URL);
     const fetchOriginalUrl = async () => {
       try {
-        const response = await fetch(
-          `${GET_SHORT_URL}?shortCode=${shortCode}`,
-          {
-            // Your server endpoint
-            method: 'GET',
-            headers: { 'Content-Type': 'application/json' },
-          }
-        );
+        const response = await fetch(EDGE_FUNCTION_REDIRECT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ shortCode }),
+        });
 
         if (response.ok) {
-          const { data } = await response.json();
-          console.log('$$$ originalUrl:', data.originalUrl);
-          window.location.href = data.originalUrl; // Redirect to the original URL
+          const { originalUrl } = await response.json();
+          window.location.href = originalUrl;
         } else {
-          // Handle error (e.g., short URL not found)
-          console.error('Error fetching original URL:', response.statusText);
-          // You might want to redirect to an error page or display a message
+          setError('Short URL not found');
         }
       } catch (error) {
         console.error('Error fetching original URL:', error);
-        // Handle network or other errors
+        setError('An error occurred while redirecting');
       }
     };
 
-    fetchOriginalUrl();
-  }, [shortCode, navigate]); // Run the effect only when shortCode changes
+    if (shortCode) {
+      fetchOriginalUrl();
+    }
+  }, [shortCode]);
 
-  return <div>Redirecting...</div>; // Or a loading indicator
+  if (error) return <div>{error}</div>;
+  return <div>Redirecting...</div>;
 };
 
 export default RedirectComponent;
