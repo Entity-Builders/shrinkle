@@ -1,3 +1,20 @@
+---
+name: 'Shrinkle'
+tagline: 'URL shortener with animated UI and click tracking'
+platform: 'Web'
+status: 'active'
+category: 'developer-tools'
+icon: '🔗'
+features:
+  - 'Shorten URLs with 5-char codes'
+  - 'Click tracking and analytics'
+  - 'Animated color-cycling UI'
+  - 'One-click copy to clipboard'
+  - 'Responsive mobile-first design'
+downloadUrl: ''
+visible: true
+---
+
 # 🔗 Shrinkle — URL Shortener
 
 > **"Eliminate those long hard-to-remember links"**
