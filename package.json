@@ -10,7 +10,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@paralleldrive/cuid2": "^2.2.2",
     "@react-spring/web": "^9.7.4",
+    "@supabase/supabase-js": "^2.49.1",
     "@types/lodash": "^4.17.7",
     "@types/react-copy-to-clipboard": "^5.0.7",
     "@types/react-responsive": "^8.0.8",
@@ -24,9 +26,7 @@
     "react-router-dom": "^6.26.0",
     "styled-components": "^6.1.12",
     "styled-media-query": "^2.1.2",
-    "uniqolor": "^1.1.1",
-    "@supabase/supabase-js": "^2.49.1",
-    "@paralleldrive/cuid2": "^2.2.2"
+    "uniqolor": "^1.1.1"
   },
   "devDependencies": {
     "@types/node": "^22.1.0",
